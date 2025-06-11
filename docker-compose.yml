@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  selenium-hub:
+    image: selenium/hub:4.21.0-20240527
+    ports:
+      - "4444:4444"
+
+  chrome:
+    image: selenium/node-chrome:4.21.0-20240527
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  firefox:
+    image: selenium/node-firefox:4.21.0-20240527
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  test-runner:
+    build:
+      context: .
+    depends_on:
+      - selenium-hub
+      - chrome
+    environment:
+      - SELENIUM_HUB=http://selenium-hub:4444/wd/hub
+    volumes:
+      - ./test:/app/test
+    command: ["python3", "test_google_search.py"]
+
