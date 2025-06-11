@@ -1,6 +1,5 @@
 import os
 import time
-import shutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -72,19 +71,13 @@ def run_test():
 
         print("📄 Processing search results...")
         links = driver.find_elements(By.CSS_SELECTOR, "a[href]")
-        found = False
+        found = any("python.org" in link.get_attribute("href") for link in links if link.get_attribute("href"))
 
-        with open("test/result.log", "w", encoding="utf-8") as f:
-            for link in links:
-                url = link.get_attribute("href")
-                text = link.text.strip()
-                if url:
-                    f.write(f"{text} -> {url}\n")
-                    if "python.org" in url:
-                        print(f"🎉 Found matching URL: {url}")
-                        found = True
-
-        result_message = "✅ DuckDuckGo Search Test Passed: Found www.python.org link!" if found else "❌ DuckDuckGo Search Test Failed: Could not find www.python.org link."
+        result_message = (
+            "✅ DuckDuckGo Search Test Passed: Found www.python.org link!"
+            if found else
+            "❌ DuckDuckGo Search Test Failed: Could not find www.python.org link."
+        )
         print(result_message)
 
     except Exception as e:
@@ -93,11 +86,6 @@ def run_test():
         print("🛑 Test finished. Closing the driver.")
         if driver:
             driver.quit()
-
-        if os.path.exists("test/result.log"):
-            shutil.copy("test/result.log", "result.txt")
-        else:
-            print("⚠️ result.log not found to copy to result.txt.")
 
 if __name__ == "__main__":
     run_test()
