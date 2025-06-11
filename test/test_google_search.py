@@ -30,7 +30,7 @@ def get_driver():
             # If connection fails, wait and retry
             print(f"⏳ Connection attempt {i+1}/15 failed. Retrying in 2 seconds...")
             time.sleep(2)
-    
+
     # If all retries fail, raise an exception
     raise Exception("❌ Could not connect to Selenium Hub after multiple retries.")
 
@@ -53,11 +53,11 @@ def run_test():
         print("📄 Processing search results...")
         links = driver.find_elements(By.XPATH, '//a')
         found = False
-        
+
         # Ensure the 'test' directory exists before writing the file
         if not os.path.exists("test"):
             os.makedirs("test")
-            
+
         with open("test/result.log", "w") as f:
             for link in links:
                 url = link.get_attribute("href")
@@ -66,7 +66,7 @@ def run_test():
                     if "devopsfarm.in" in url:
                         print(f"🎉 Found matching URL: {url}")
                         found = True
-            
+
             result_message = "✅ devopsfarm.in Found!" if found else "❌ devopsfarm.in Not Found."
             f.write(f"\n{result_message}\n")
             print(result_message)
@@ -78,3 +78,4 @@ def run_test():
 
 if __name__ == "__main__":
     run_test()
+

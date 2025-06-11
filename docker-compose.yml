@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8' # Updated to 3.8 to ensure healthcheck and service_healthy support
 
 services:
   selenium-hub:
@@ -8,11 +8,18 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
+    healthcheck: # <-- NEW: Health check to ensure the hub is ready
+      test: ["CMD-SHELL", "curl -sS http://localhost:4444/wd/hub/status || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 20s # Give the hub some time to start up initially
 
   chrome:
     image: selenium/node-chrome:4.21.0
     depends_on:
-      - selenium-hub
+      selenium-hub:
+        condition: service_healthy # <-- UPDATED: Wait for hub to be healthy
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -21,7 +28,8 @@ services:
   firefox:
     image: selenium/node-firefox:4.21.0
     depends_on:
-      - selenium-hub
+      selenium-hub:
+        condition: service_healthy # <-- UPDATED: Wait for hub to be healthy
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -30,8 +38,20 @@ services:
   test-runner:
     build:
       context: .
+      dockerfile: Dockerfile
     depends_on:
-      - selenium-hub
-      - chrome
-      - firefox
+      # Ensure Chrome and Firefox nodes are started (though their internal readiness is handled by the Selenium Grid)
+      chrome:
+        condition: service_started
+      firefox:
+        condition: service_started
+      # <-- NEW: Explicitly wait for the Selenium Hub to be healthy before starting tests
+      selenium-hub:
+        condition: service_healthy
+    volumes:
+      - .:/code
+    working_dir: /code/test
+    environment:
+      - SELENIUM_HUB=http://selenium-hub:4444/wd/hub
+    command: ["python", "test_google_search.py"]
 
