@@ -19,14 +19,7 @@ pipeline {
 
         stage('Display Result') {
             steps {
-                echo 'Test execution complete!'
-                sh 'cat result.txt || echo "❌ result.txt not found!"'
-            }
-        }
-
-        stage('Archive Results') {
-            steps {
-                archiveArtifacts artifacts: 'result.txt', fingerprint: true
+                echo '✅ Test execution complete!'
             }
         }
     }
