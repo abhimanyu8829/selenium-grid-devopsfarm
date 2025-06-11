@@ -57,20 +57,19 @@ def run_test():
                 url = link.get_attribute("href")
                 if url:
                     f.write(f"{url}\n")
-                    if "devopsfarm.in" in url:
-                        print(f"🎉 Found matching URL: {url}")
-                        found = True
+                    if url == "https://www.devopsfarm.in/":
+    print(f"🎉 Found matching URL: {url}")
+    found = True
 
-            result_message = "✅ devopsfarm.in Found!" if found else "❌ devopsfarm.in Not Found."
-            f.write(f"\n{result_message}\n")
-            print(result_message)
+result_message = "✅ www.devopsfarm.in Found!" if found else "❌ www.devopsfarm.in Not Found."
+
 
     finally:
         print("🛑 Test finished. Closing the driver.")
         driver.quit()
 
         # ✅ Copy result.log to result.txt after the test finishes
-        if os.path.exists("test/result.log"):
+        Iif os.path.exists("test/result.log"):
             shutil.copy("test/result.log", "result.txt")
 
 if __name__ == "__main__":
