@@ -1,4 +1,4 @@
-version: '3.8' # Updated to 3.8 to ensure healthcheck and service_healthy support
+version: '3.8'
 
 services:
   selenium-hub:
@@ -8,18 +8,18 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
-    healthcheck: # <-- NEW: Health check to ensure the hub is ready
+    healthcheck:
       test: ["CMD-SHELL", "curl -sS http://localhost:4444/wd/hub/status || exit 1"]
       interval: 5s
       timeout: 10s
       retries: 5
-      start_period: 20s # Give the hub some time to start up initially
+      start_period: 20s
 
   chrome:
     image: selenium/node-chrome:4.21.0
     depends_on:
       selenium-hub:
-        condition: service_healthy # <-- UPDATED: Wait for hub to be healthy
+        condition: service_healthy
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -29,7 +29,7 @@ services:
     image: selenium/node-firefox:4.21.0
     depends_on:
       selenium-hub:
-        condition: service_healthy # <-- UPDATED: Wait for hub to be healthy
+        condition: service_healthy
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -40,18 +40,18 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      # Ensure Chrome and Firefox nodes are started (though their internal readiness is handled by the Selenium Grid)
       chrome:
         condition: service_started
       firefox:
         condition: service_started
-      # <-- NEW: Explicitly wait for the Selenium Hub to be healthy before starting tests
       selenium-hub:
         condition: service_healthy
     volumes:
       - .:/code
-    working_dir: /code/test
+      - ./test:/app/test      # ✅ Ensure test directory is shared
+      - ./result.txt:/app/result.txt   # ✅ Map result.txt to host for Jenkins
+    working_dir: /app
     environment:
       - SELENIUM_HUB=http://selenium-hub:4444/wd/hub
-    command: ["python", "test_google_search.py"]
+    command: ["python", "test/test_google_search.py"]
 
