@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -19,36 +20,29 @@ def get_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    # Retry connecting to the Selenium Hub for up to 30 seconds
     for i in range(15):
         try:
-            # Attempt to create a new remote session with the hub
             driver = webdriver.Remote(command_executor=hub_url, options=options)
             print("✅ Successfully connected to Selenium Hub.")
             return driver
-        except WebDriverException as e:
-            # If connection fails, wait and retry
+        except WebDriverException:
             print(f"⏳ Connection attempt {i+1}/15 failed. Retrying in 2 seconds...")
             time.sleep(2)
 
-    # If all retries fail, raise an exception
     raise Exception("❌ Could not connect to Selenium Hub after multiple retries.")
 
 def run_test():
-    """
-    Runs the main test logic: searches Google and checks for a specific URL.
-    """
     driver = get_driver()
     try:
         print("🚀 Starting the test: Navigating to Google.com")
         driver.get("https://www.google.com")
-        time.sleep(2) # Wait for the page to load
+        time.sleep(2)
 
         print("🔍 Finding the search box and entering 'devopsfarm'.")
         search = driver.find_element(By.NAME, "q")
         search.send_keys("devopsfarm")
         search.send_keys(Keys.RETURN)
-        time.sleep(2) # Wait for search results to load
+        time.sleep(2)
 
         print("📄 Processing search results...")
         links = driver.find_elements(By.XPATH, '//a')
@@ -71,8 +65,10 @@ def run_test():
             f.write(f"\n{result_message}\n")
             print(result_message)
 
+        # ✅ Copy result to root directory so Jenkins can archive it
+        shutil.copy("test/result.log", "result.txt")
+
     finally:
-        # Always quit the driver to close the session and browser
         print("🛑 Test finished. Closing the driver.")
         driver.quit()
 
