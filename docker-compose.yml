@@ -2,12 +2,15 @@ version: '3'
 
 services:
   selenium-hub:
-    image: selenium/hub:4.21.0-20240527
+    image: selenium/hub:4.21.0
+    container_name: selenium-hub
     ports:
+      - "4442:4442"
+      - "4443:4443"
       - "4444:4444"
 
   chrome:
-    image: selenium/node-chrome:4.21.0-20240527
+    image: selenium/node-chrome:4.21.0
     depends_on:
       - selenium-hub
     environment:
@@ -16,7 +19,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.21.0-20240527
+    image: selenium/node-firefox:4.21.0
     depends_on:
       - selenium-hub
     environment:
@@ -30,9 +33,5 @@ services:
     depends_on:
       - selenium-hub
       - chrome
-    environment:
-      - SELENIUM_HUB=http://selenium-hub:4444/wd/hub
-    volumes:
-      - ./test:/app/test
-    command: ["python3", "test_google_search.py"]
+      - firefox
 
