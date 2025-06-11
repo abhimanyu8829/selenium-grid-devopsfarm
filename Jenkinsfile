@@ -10,7 +10,7 @@ pipeline {
 
         stage('Run Selenium Test') {
             steps {
-                sh 'docker compose up --abort-on-container-exit --build'
+                sh 'docker compose up --wait --build'
             }
         }
 
