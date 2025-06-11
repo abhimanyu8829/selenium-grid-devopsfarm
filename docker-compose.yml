@@ -24,6 +24,8 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "5900:7900" # <--- ADDED: Maps host port 5900 to container's VNC port 7900
 
   firefox:
     image: selenium/node-firefox:4.21.0
@@ -34,6 +36,8 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "5901:7900" # <--- ADDED: Maps host port 5901 to container's VNC port 7900 for Firefox (using a different host port to avoid conflict)
 
   test-runner:
     build:
@@ -49,9 +53,9 @@ services:
     volumes:
       - .:/code
       - ./test:/app/test      # ✅ Ensure test directory is shared
-      - ./result.txt:/app/result.txt   # ✅ Map result.txt to host for Jenkins
+      - ./result.txt:/app/result.txt    # ✅ Map result.txt to host for Jenkins
     working_dir: /app
     environment:
       - SELENIUM_HUB=http://selenium-hub:4444/wd/hub
-    command: ["python", "test/test_google_search.py"]
+    command: ["python", "test/test_google_search.py"] # Assuming this is your current test file
 
