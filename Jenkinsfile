@@ -10,7 +10,7 @@ pipeline {
 
         stage('Build and Run Selenium Test') {
             steps {
-                sh 'docker-compose up --build --exit-code-from test-runner'
+                /usr/local/bin/docker-compose up --build --exit-code-from test-runner
             }
         }
 
