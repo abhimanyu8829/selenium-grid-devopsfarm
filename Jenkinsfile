@@ -8,9 +8,9 @@ pipeline {
             }
         }
 
-        stage('Run Selenium Test') {
+        stage('Build and Run Selenium Test') {
             steps {
-                sh 'docker compose up --build'
+                sh 'docker compose up --build --exit-code-from test-runner'
             }
         }
 
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Clean Up') {
             steps {
-                sh 'docker compose down'
+                sh 'docker compose down --volumes --remove-orphans'
             }
         }
     }
