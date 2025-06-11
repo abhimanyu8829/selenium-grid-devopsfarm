@@ -65,13 +65,13 @@ def run_test():
             f.write(f"\n{result_message}\n")
             print(result_message)
 
-        # ✅ Copy result to root directory so Jenkins can archive it
-        shutil.copy("test/result.log", "result.txt")
-
     finally:
         print("🛑 Test finished. Closing the driver.")
         driver.quit()
 
+        # ✅ Copy result.log to result.txt after the test finishes
+        if os.path.exists("test/result.log"):
+            shutil.copy("test/result.log", "result.txt")
+
 if __name__ == "__main__":
     run_test()
-
