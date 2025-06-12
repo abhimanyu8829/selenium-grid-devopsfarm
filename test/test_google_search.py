@@ -12,7 +12,7 @@ hub_url = os.getenv("SELENIUM_HUB", "http://selenium-hub:4444/wd/hub")
 
 def get_driver():
     options = Options()
-    options.add_argument("--headless=new")  # Modern headless mode
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
@@ -55,9 +55,9 @@ def run_test():
             except TimeoutException:
                 raise Exception("DuckDuckGo homepage did not load in time.")
 
-        print("🔍 Finding the search box and entering 'python'.")
+        print("🔍 Finding the search box and entering 'amazon'.")
         search_box = driver.find_element(By.NAME, "q")
-        search_box.send_keys("python")
+        search_box.send_keys("amazon")
         search_box.send_keys(Keys.RETURN)
 
         print("Waiting for search results to load on DuckDuckGo...")
@@ -71,12 +71,20 @@ def run_test():
 
         print("📄 Processing search results...")
         links = driver.find_elements(By.CSS_SELECTOR, "a[href]")
-        found = any("python.org" in link.get_attribute("href") for link in links if link.get_attribute("href"))
+        found = False
+        for link in links:
+            href = link.get_attribute("href")
+            if href:
+                print("🔗", href)  # optional: remove this line if too verbose
+                if "amazon.in" in href or "amazon.com" in href:
+                    print("🎯 Found Amazon link:", href)
+                    found = True
+                    break
 
         result_message = (
-            "✅ DuckDuckGo Search Test Passed: Found www.python.org link!"
+            "✅ DuckDuckGo Search Test Passed: Found amazon.in or amazon.com!"
             if found else
-            "❌ DuckDuckGo Search Test Failed: Could not find www.python.org link."
+            "❌ DuckDuckGo Search Test Failed: Could not find amazon.in or amazon.com."
         )
         print(result_message)
 
